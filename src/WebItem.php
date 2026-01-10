@@ -9,16 +9,42 @@ class WebItem
     protected static array $WEB_ITEMS = [];
 
     /** @var WebItemAction[] */
-    protected $enabledAppActions = [];
+    protected array $enabledAppActions = [];
 
     /** @var WebItemAction[] */
-    protected $enabledAdminActions = [];
+    protected array $enabledAdminActions = [];
+
+    protected array $appAccessPoliciesPerAction = [];
+
+    protected array $adminAccessPoliciesPerAction = [];
 
     public function __construct(
         readonly public string $component,
         readonly public string|null $publicComponentName = null,
     )
     {}
+
+    public function setAppActionAccessPolicy(WebItemAction $action, string $accessPolicy): static
+    {
+        $this->appAccessPoliciesPerAction[$action->value] = $accessPolicy;
+        return $this;
+    }
+
+    public function getAppActionAccessPolicy(WebItemAction $action): string
+    {
+        return trim($this->appAccessPoliciesPerAction[$action->value]);
+    }
+
+    public function setAdminActionAccessPolicy(WebItemAction $action, string $accessPolicy): static
+    {
+        $this->adminAccessPoliciesPerAction[$action->value] = $accessPolicy;
+        return $this;
+    }
+
+    public function getAdminActionAccessPolicy(WebItemAction $action): string
+    {
+        return trim($this->adminAccessPoliciesPerAction[$action->value]);
+    }
 
     /** @param WebItemAction[] $actions */
     public function setEnabledAppActions(array $actions): static
@@ -70,7 +96,7 @@ class WebItem
         });
 
         if (count($filtered) > 0) {
-            reset($filtered);
+            $filtered = array_values($filtered);
             return $filtered[0];
         }
 
